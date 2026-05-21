@@ -1,0 +1,14 @@
+{
+  "flutter": {
+    "platforms": {
+      "dart": {
+        "lib/firebase_options.dart": {
+          "projectId": "dishant-portfolio-bfd92",
+          "configurations": {
+            "web": "1:500160268833:web:4c21feda359effa43bf160"
+          }
+        }
+      }
+    }
+  }
+}
