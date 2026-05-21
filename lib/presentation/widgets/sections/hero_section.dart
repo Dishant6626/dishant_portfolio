@@ -65,12 +65,6 @@ class HeroSection extends StatelessWidget {
               ],
             ),
           ),
-          Positioned(
-            bottom: 32,
-            left: 0,
-            right: 0,
-            child: Center(child: _ScrollIndicator()),
-          ),
         ],
       ),
     );
@@ -237,7 +231,7 @@ class _HeroContent extends StatelessWidget {
           spacing: 40,
           runSpacing: 24,
           children: [
-            _StatItem(value: '5+', label: 'Years Experience'),
+            _StatItem(value: '5', label: 'Years Experience'),
             _StatItem(value: '10+', label: 'Projects Delivered'),
             _StatItem(value: '3', label: 'Awards Won'),
           ],
@@ -420,77 +414,4 @@ class _GridPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
-}
-
-class _ScrollIndicator extends StatefulWidget {
-  @override
-  State<_ScrollIndicator> createState() => _ScrollIndicatorState();
-}
-
-class _ScrollIndicatorState extends State<_ScrollIndicator>
-    with SingleTickerProviderStateMixin {
-  late final AnimationController _controller;
-  late final Animation<double> _animation;
-
-  @override
-  void initState() {
-    super.initState();
-    _controller = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 1200),
-    )..repeat(reverse: true);
-    _animation = Tween<double>(
-      begin: 0,
-      end: 8,
-    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOut));
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return AnimatedBuilder(
-      animation: _animation,
-      builder: (_, child) => Transform.translate(
-        offset: Offset(0, _animation.value),
-        child: child,
-      ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          const Text(
-            'Scroll down',
-            style: TextStyle(
-              color: AppColors.textMuted,
-              fontSize: 12,
-              letterSpacing: 1.5,
-            ),
-          ),
-          const SizedBox(height: 8),
-          Container(
-            width: 24,
-            height: 40,
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: AppColors.border, width: 1.5),
-            ),
-            child: Center(
-              child: Container(
-                width: 4,
-                height: 10,
-                decoration: BoxDecoration(
-                  color: AppColors.accent,
-                  borderRadius: BorderRadius.circular(2),
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
 }
