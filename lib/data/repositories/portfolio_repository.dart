@@ -1,5 +1,8 @@
+import 'dart:developer';
+import 'dart:typed_data';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter/material.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 
 import '../models/portfolio_models.dart';
 
@@ -16,6 +19,7 @@ class PortfolioRepository {
   static final PortfolioRepository instance = PortfolioRepository._();
 
   final _db = FirebaseFirestore.instance;
+  final _storage = FirebaseStorage.instance;
 
   // ── Collection references ─────────────────────────────────────────────────
 
@@ -87,6 +91,36 @@ class PortfolioRepository {
 
   Future<void> saveAbout(AboutModel about) =>
       _aboutDoc.set(about.toJson(), SetOptions(merge: true));
+
+  // ── Resume upload ─────────────────────────────────────────────────────────
+  Future<String> uploadResume(Uint8List bytes, String fileName) async {
+    // Always stored at a fixed path so it overwrites the previous resume
+    log('DP=> uploadResume_start');
+    try {
+      final ref = _storage.ref('resumes/resume.pdf');
+      log('DP=> uploadResume_start1');
+
+      await ref.putData(
+        bytes,
+        SettableMetadata(contentType: 'application/pdf'),
+      );
+      log('DP=> uploadResume_start2');
+
+      final url = await ref.getDownloadURL();
+      log('DP=> uploadResume_start3');
+
+      // Patch only resumeUrl — leaves every other field untouched
+      await _aboutDoc.update({'resumeUrl': url});
+      log('DP=> uploadResume_start4');
+
+      return url;
+    } catch (e) {
+      log('DP=> uploadResume_error::${e}');
+    } finally {
+      log('DP=> uploadResume_done::');
+      return '';
+    }
+  }
 
   // ── Experience writes ─────────────────────────────────────────────────────
 

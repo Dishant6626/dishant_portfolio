@@ -9,7 +9,6 @@ import '../../core/base/view_action.dart';
 import '../../core/common/full_screen_error.dart';
 import '../../core/common/full_screen_loading.dart';
 import '../../core/constants/app_colors.dart';
-import '../../data/models/portfolio_models.dart';
 import 'bloc/admin_bloc.dart';
 import 'bloc/admin_state.dart';
 import 'widgets/about_edit_tab.dart';

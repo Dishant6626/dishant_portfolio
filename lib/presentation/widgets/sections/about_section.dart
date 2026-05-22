@@ -1,4 +1,7 @@
+import 'package:dishant_portfolio/core/constants/app_icons.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../../../core/constants/app_colors.dart';
 import '../../../core/utils/responsive_utils.dart';
@@ -288,7 +291,17 @@ class _InfoCard extends StatelessWidget {
             text: about?.phone ?? '+91 9574860845',
           ),
           const SizedBox(height: 12),
-          _InfoRow(icon: Icons.link_rounded, text: 'LinkedIn Profile'),
+          _InfoSocialRow(
+            icon: AppIcons.linkedin,
+            text: 'LinkedIn Profile',
+            url: about?.linkedInUrl ?? '',
+          ),
+          const SizedBox(height: 12),
+          _InfoSocialRow(
+            icon: AppIcons.github,
+            text: 'Github Profile',
+            url: about?.githubUrl ?? '',
+          ),
         ],
       ),
     );
@@ -488,6 +501,50 @@ class _InfoRow extends StatelessWidget {
           ),
         ),
       ],
+    );
+  }
+}
+
+class _InfoSocialRow extends StatelessWidget {
+  final String icon;
+  final String text;
+  final String url;
+
+  const _InfoSocialRow({required this.icon, required this.text, this.url = ""});
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: () async {
+        if (url.isEmpty) return;
+        final uri = Uri.parse(url);
+        if (await canLaunchUrl(uri))
+          await launchUrl(uri, mode: LaunchMode.externalApplication);
+      },
+      child: Row(
+        children: [
+          SvgPicture.asset(
+            icon,
+            colorFilter: ColorFilter.mode(
+              AppColors.textSecondary,
+              BlendMode.srcIn,
+            ),
+            width: 16,
+            height: 16,
+          ),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Text(
+              text,
+              style: const TextStyle(
+                color: AppColors.textSecondary,
+                fontSize: 13,
+              ),
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

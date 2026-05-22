@@ -1,4 +1,6 @@
+import 'package:dishant_portfolio/core/constants/app_icons.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../../core/constants/app_colors.dart';
@@ -204,7 +206,7 @@ class _ContactCards extends StatelessWidget {
       children: [
         _ContactInfoCard(about: about),
         const SizedBox(height: 24),
-        _SocialLinksCard(linkedInUrl: about?.linkedInUrl ?? ''),
+        _SocialLinksCard(about: about),
       ],
     );
   }
@@ -352,9 +354,9 @@ class _DetailRowState extends State<_DetailRow> {
 }
 
 class _SocialLinksCard extends StatelessWidget {
-  final String linkedInUrl;
+  final AboutModel? about;
 
-  const _SocialLinksCard({required this.linkedInUrl});
+  const _SocialLinksCard({required this.about});
 
   @override
   Widget build(BuildContext context) {
@@ -384,10 +386,21 @@ class _SocialLinksCard extends StatelessWidget {
           ),
           const SizedBox(height: 20),
           _SocialBtn(
-            icon: Icons.people_alt_rounded,
+            icon: AppIcons.linkedin,
             label: 'LinkedIn',
             subtitle: 'Connect with me',
-            url: linkedInUrl.isNotEmpty ? linkedInUrl : 'https://linkedin.com',
+            url: about != null && about!.linkedInUrl.isNotEmpty
+                ? about!.linkedInUrl
+                : 'https://linkedin.com',
+          ),
+          const SizedBox(height: 20),
+          _SocialBtn(
+            icon: AppIcons.github,
+            label: 'Github',
+            subtitle: 'Check my work',
+            url: about != null && about!.githubUrl.isNotEmpty
+                ? about!.githubUrl
+                : 'https://github.com',
           ),
         ],
       ),
@@ -396,7 +409,7 @@ class _SocialLinksCard extends StatelessWidget {
 }
 
 class _SocialBtn extends StatefulWidget {
-  final IconData icon;
+  final String icon;
   final String label;
   final String subtitle;
   final String url;
@@ -443,10 +456,14 @@ class _SocialBtnState extends State<_SocialBtn> {
           ),
           child: Row(
             children: [
-              Icon(
+              SvgPicture.asset(
                 widget.icon,
-                color: _hovered ? AppColors.accent : AppColors.textSecondary,
-                size: 22,
+                height: 22,
+                width: 22,
+                colorFilter: ColorFilter.mode(
+                  _hovered ? AppColors.accent : AppColors.textSecondary,
+                  BlendMode.srcIn,
+                ),
               ),
               const SizedBox(width: 12),
               Column(

@@ -16,6 +16,7 @@ class AdminBloc extends BaseBloc<AdminEvent, AdminData> {
     on<UpdateAdminState>((event, emit) => emit(event.state));
     on<SelectTabEvent>(_onSelectTab);
     on<SaveAboutEvent>(_onSaveAbout);
+    on<SaveResumeEvent>(_onSaveResume);
     on<AddExperienceEvent>(_onAddExperience);
     on<UpdateExperienceEvent>(_onUpdateExperience);
     on<DeleteExperienceEvent>(_onDeleteExperience);
@@ -99,6 +100,33 @@ class AdminBloc extends BaseBloc<AdminEvent, AdminData> {
       add(
         UpdateAdminState(
           state.copyWith(isSaving: false, errorMessage: 'Failed to save: $e'),
+        ),
+      );
+    }
+  }
+
+  void _onSaveResume(SaveResumeEvent event, _) async {
+    add(UpdateAdminState(state.copyWith(isSaving: true, errorMessage: null)));
+    try {
+      final url = await _repo.uploadResume(event.fileBytes, event.fileName);
+
+      // Merge the new URL into the local about model so UI reflects it instantly
+      final updatedAbout = state.about?.copyWith(resumeUrl: url);
+
+      add(
+        UpdateAdminState(
+          state.copyWith(
+            isSaving: false,
+            about: updatedAbout,
+            successMessage: 'Resume uploaded successfully!',
+          ),
+        ),
+      );
+    } catch (e) {
+      _log.e('Resume upload error: $e');
+      add(
+        UpdateAdminState(
+          state.copyWith(isSaving: false, errorMessage: 'Upload failed: $e'),
         ),
       );
     }

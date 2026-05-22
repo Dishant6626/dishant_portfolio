@@ -49,12 +49,25 @@ class _SkillsGrid extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    if (isMobile) {
+      return Column(
+        children: skills
+            .map(
+              (s) => Padding(
+                padding: const EdgeInsets.only(bottom: 20),
+                child: _SkillCard(category: s),
+              ),
+            )
+            .toList(),
+      );
+    }
+
     return GridView.builder(
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: isMobile ? 1 : 2,
-        childAspectRatio: isMobile ? 2.4 : 2.0,
+        crossAxisCount: 2,
+        childAspectRatio: 2.4,
         crossAxisSpacing: 20,
         mainAxisSpacing: 20,
       ),
