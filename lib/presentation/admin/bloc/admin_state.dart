@@ -1,5 +1,7 @@
 // ── vCtr template ─────────────────────────────────────────────────────────────
 
+import 'dart:typed_data';
+
 import 'package:equatable/equatable.dart';
 
 import '../../../core/base/screen_state.dart';
@@ -101,6 +103,13 @@ class SaveAboutEvent extends AdminEvent {
   final AboutModel about;
 
   SaveAboutEvent(this.about);
+}
+
+class SaveResumeEvent extends AdminEvent {
+  final Uint8List fileBytes;
+  final String fileName;
+
+  SaveResumeEvent(this.fileBytes, this.fileName);
 }
 
 // ── Experience ─────────────────────────────────────────────────────────────────

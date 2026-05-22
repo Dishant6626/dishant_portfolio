@@ -1,3 +1,4 @@
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 
 import '../../../core/constants/app_colors.dart';
@@ -52,18 +53,38 @@ class _ProjectsGrid extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    if (isMobile) {
+      return Column(
+        children: projects
+            .mapIndexed(
+              (i, p) => Padding(
+                padding: const EdgeInsets.only(bottom: 24),
+                child: _ProjectCard(
+                  project: p,
+                  featured: i == 0,
+                  isMobile: isMobile,
+                ),
+              ),
+            )
+            .toList(),
+      );
+    }
+
     return GridView.builder(
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: isMobile ? 1 : 2,
-        childAspectRatio: isMobile ? 1.3 : 1.15,
+        crossAxisCount: 2,
+        childAspectRatio: 1.5,
         crossAxisSpacing: 24,
         mainAxisSpacing: 24,
       ),
       itemCount: projects.length,
-      itemBuilder: (_, i) =>
-          _ProjectCard(project: projects[i], featured: i == 0),
+      itemBuilder: (_, i) => _ProjectCard(
+        project: projects[i],
+        featured: i == 0,
+        isMobile: isMobile,
+      ),
     );
   }
 }
@@ -71,8 +92,13 @@ class _ProjectsGrid extends StatelessWidget {
 class _ProjectCard extends StatefulWidget {
   final ProjectModel project;
   final bool featured;
+  final bool isMobile;
 
-  const _ProjectCard({required this.project, this.featured = false});
+  const _ProjectCard({
+    required this.project,
+    required this.featured,
+    required this.isMobile,
+  });
 
   @override
   State<_ProjectCard> createState() => _ProjectCardState();
@@ -112,7 +138,9 @@ class _ProjectCardState extends State<_ProjectCard> {
           borderRadius: BorderRadius.circular(20),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: widget.isMobile ? MainAxisSize.min : MainAxisSize.max,
             children: [
+              // Accent bar
               Container(
                 height: 6,
                 decoration: BoxDecoration(
@@ -126,90 +154,124 @@ class _ProjectCardState extends State<_ProjectCard> {
                         ),
                 ),
               ),
-              Expanded(
-                child: Padding(
-                  padding: const EdgeInsets.all(24),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        widget.project.title,
-                        style: const TextStyle(
-                          color: AppColors.textPrimary,
-                          fontSize: 20,
-                          fontWeight: FontWeight.w700,
+              // Body
+              widget.isMobile
+                  ? Padding(
+                      // ← mobile: no Expanded, wraps freely
+                      padding: const EdgeInsets.all(24),
+                      child: _CardBody(project: widget.project, isMobile: true),
+                    )
+                  : Expanded(
+                      // ← desktop: fills GridView cell height
+                      child: Padding(
+                        padding: const EdgeInsets.all(24),
+                        child: _CardBody(
+                          project: widget.project,
+                          isMobile: false,
                         ),
                       ),
-                      const SizedBox(height: 6),
-                      Row(
-                        children: [
-                          const Icon(
-                            Icons.devices_rounded,
-                            size: 13,
-                            color: AppColors.accent,
-                          ),
-                          const SizedBox(width: 6),
-                          Text(
-                            widget.project.platform,
-                            style: const TextStyle(
-                              color: AppColors.accent,
-                              fontSize: 12,
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 14),
-                      Expanded(
-                        child: Text(
-                          widget.project.description,
-                          style: const TextStyle(
-                            color: AppColors.textSecondary,
-                            fontSize: 14,
-                            height: 1.6,
-                          ),
-                          overflow: TextOverflow.fade,
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-                      Wrap(
-                        spacing: 8,
-                        runSpacing: 8,
-                        children: widget.project.tags
-                            .map((t) => _TagChip(t))
-                            .toList(),
-                      ),
-                      if (widget.project.role != null) ...[
-                        const SizedBox(height: 12),
-                        const Divider(color: AppColors.border, height: 1),
-                        const SizedBox(height: 10),
-                        Row(
-                          children: [
-                            const Icon(
-                              Icons.badge_rounded,
-                              size: 14,
-                              color: AppColors.textMuted,
-                            ),
-                            const SizedBox(width: 6),
-                            Text(
-                              widget.project.role!,
-                              style: const TextStyle(
-                                color: AppColors.textMuted,
-                                fontSize: 12,
-                                fontStyle: FontStyle.italic,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ],
-                  ),
-                ),
-              ),
+                    ),
             ],
           ),
         ),
       ),
+    );
+  }
+}
+
+class _CardBody extends StatelessWidget {
+  final ProjectModel project;
+  final bool isMobile;
+
+  const _CardBody({required this.project, required this.isMobile});
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: isMobile ? MainAxisSize.min : MainAxisSize.max,
+      children: [
+        Text(
+          project.title,
+          style: const TextStyle(
+            color: AppColors.textPrimary,
+            fontSize: 20,
+            fontWeight: FontWeight.w700,
+          ),
+        ),
+        const SizedBox(height: 6),
+        Row(
+          children: [
+            const Icon(
+              Icons.devices_rounded,
+              size: 13,
+              color: AppColors.accent,
+            ),
+            const SizedBox(width: 6),
+            Text(
+              project.platform,
+              style: const TextStyle(
+                color: AppColors.accent,
+                fontSize: 12,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 14),
+
+        // Description — Expanded only on desktop
+        isMobile
+            ? Text(
+                project.description,
+                style: const TextStyle(
+                  color: AppColors.textSecondary,
+                  fontSize: 14,
+                  height: 1.6,
+                ),
+              )
+            : Expanded(
+                child: Text(
+                  project.description,
+                  style: const TextStyle(
+                    color: AppColors.textSecondary,
+                    fontSize: 14,
+                    height: 1.6,
+                  ),
+                  overflow: TextOverflow.fade,
+                ),
+              ),
+
+        const SizedBox(height: 16),
+        Wrap(
+          spacing: 8,
+          runSpacing: 8,
+          children: project.tags.map((t) => _TagChip(t)).toList(),
+        ),
+        if (project.role != null) ...[
+          const SizedBox(height: 12),
+          const Divider(color: AppColors.border, height: 1),
+          const SizedBox(height: 10),
+          Row(
+            children: [
+              const Icon(
+                Icons.badge_rounded,
+                size: 14,
+                color: AppColors.textMuted,
+              ),
+              const SizedBox(width: 6),
+              Text(
+                project.role!,
+                style: const TextStyle(
+                  color: AppColors.textMuted,
+                  fontSize: 12,
+                  fontStyle: FontStyle.italic,
+                ),
+              ),
+            ],
+          ),
+        ],
+      ],
     );
   }
 }

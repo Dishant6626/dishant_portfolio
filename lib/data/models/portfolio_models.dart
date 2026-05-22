@@ -9,6 +9,8 @@ class AboutModel {
   final String location;
   final String linkedIn;
   final String linkedInUrl;
+  final String githubUrl;
+  final String resumeUrl; // ← new (Firebase Storage download URL)
   final String desc1;
   final String desc2;
   final List<String> strengths;
@@ -24,6 +26,8 @@ class AboutModel {
     required this.desc1,
     required this.desc2,
     required this.strengths,
+    this.githubUrl = '',
+    this.resumeUrl = '',
   });
 
   factory AboutModel.fromJson(Map<String, dynamic> json) => AboutModel(
@@ -34,6 +38,8 @@ class AboutModel {
     location: json['location'] ?? '',
     linkedIn: json['linkedIn'] ?? '',
     linkedInUrl: json['linkedInUrl'] ?? '',
+    githubUrl: json['githubUrl'] ?? '',
+    resumeUrl: json['resumeUrl'] ?? '',
     desc1: json['desc1'] ?? '',
     desc2: json['desc2'] ?? '',
     strengths: List<String>.from(json['strengths'] ?? []),
@@ -47,6 +53,8 @@ class AboutModel {
     'location': location,
     'linkedIn': linkedIn,
     'linkedInUrl': linkedInUrl,
+    'githubUrl': githubUrl,
+    'resumeUrl': resumeUrl,
     'desc1': desc1,
     'desc2': desc2,
     'strengths': strengths,
@@ -60,6 +68,8 @@ class AboutModel {
     String? location,
     String? linkedIn,
     String? linkedInUrl,
+    String? githubUrl,
+    String? resumeUrl,
     String? desc1,
     String? desc2,
     List<String>? strengths,
@@ -71,6 +81,8 @@ class AboutModel {
     location: location ?? this.location,
     linkedIn: linkedIn ?? this.linkedIn,
     linkedInUrl: linkedInUrl ?? this.linkedInUrl,
+    githubUrl: githubUrl ?? this.githubUrl,
+    resumeUrl: resumeUrl ?? this.resumeUrl,
     desc1: desc1 ?? this.desc1,
     desc2: desc2 ?? this.desc2,
     strengths: strengths ?? this.strengths,

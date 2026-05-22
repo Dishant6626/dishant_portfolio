@@ -1,5 +1,6 @@
 import 'package:animated_text_kit/animated_text_kit.dart';
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../../../core/constants/app_colors.dart';
 import '../../../core/utils/responsive_utils.dart';
@@ -224,6 +225,8 @@ class _HeroContent extends StatelessWidget {
           children: [
             _PrimaryButton(label: 'View My Work', onTap: onViewWork),
             _SecondaryButton(label: 'Get In Touch', onTap: onContact),
+            if (about != null && about!.resumeUrl.isNotEmpty)
+              _ResumeCard(resumeUrl: about!.resumeUrl),
           ],
         ),
         const SizedBox(height: 48),
@@ -414,4 +417,174 @@ class _GridPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
+}
+
+class _ResumeCard extends StatelessWidget {
+  final String resumeUrl;
+
+  const _ResumeCard({required this.resumeUrl});
+
+  Future<void> _preview() async {
+    await launchUrl(Uri.parse(resumeUrl), mode: LaunchMode.externalApplication);
+  }
+
+  Future<void> _download() async {
+    // Forces download by appending ?dl=1 — works with Firebase Storage URLs
+    // If your URL doesn't support this, launchUrl still works as fallback
+    final downloadUri = Uri.parse('$resumeUrl&dl=1');
+    await launchUrl(downloadUri, mode: LaunchMode.externalApplication);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: AppColors.bgCard,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: AppColors.border),
+      ),
+      child: Row(
+        children: [
+          // PDF icon
+          Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: AppColors.accent.withValues(alpha: 0.1),
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: const Icon(
+              Icons.picture_as_pdf_rounded,
+              color: AppColors.accent,
+              size: 24,
+            ),
+          ),
+          const SizedBox(width: 16),
+
+          // Label
+          const Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Resume',
+                  style: TextStyle(
+                    color: AppColors.textPrimary,
+                    fontSize: 15,
+                    fontWeight: FontWeight.w600,
+                    fontFamily: 'Lato',
+                  ),
+                ),
+                SizedBox(height: 2),
+                Text(
+                  'Open & download via Google Drive',
+                  style: TextStyle(
+                    color: AppColors.textMuted,
+                    fontSize: 12,
+                    fontFamily: 'Lato',
+                  ),
+                ),
+              ],
+            ),
+          ),
+
+          // ── Action buttons ─────────────────────────────────────
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              _ResumeActionBtn(
+                icon: Icons.open_in_new_rounded,
+                label: 'View Resume',
+                onTap: _preview,
+                filled: true, // accent-filled for the primary action
+              ),
+              // const SizedBox(width: 8),
+              // _ResumeActionBtn(
+              //   icon: Icons.download_rounded,
+              //   label: 'Download',
+              //   onTap: _download,
+              //   filled: true, // accent-filled for the primary action
+              // ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _ResumeActionBtn extends StatefulWidget {
+  final IconData icon;
+  final String label;
+  final VoidCallback onTap;
+  final bool filled;
+
+  const _ResumeActionBtn({
+    required this.icon,
+    required this.label,
+    required this.onTap,
+    this.filled = false,
+  });
+
+  @override
+  State<_ResumeActionBtn> createState() => _ResumeActionBtnState();
+}
+
+class _ResumeActionBtnState extends State<_ResumeActionBtn> {
+  bool _hovered = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return MouseRegion(
+      cursor: SystemMouseCursors.click,
+      onEnter: (_) => setState(() => _hovered = true),
+      onExit: (_) => setState(() => _hovered = false),
+      child: GestureDetector(
+        onTap: widget.onTap,
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 180),
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+          decoration: BoxDecoration(
+            color: widget.filled
+                ? (_hovered
+                      ? AppColors.accent.withValues(alpha: 0.85)
+                      : AppColors.accent)
+                : (_hovered
+                      ? AppColors.accent.withValues(alpha: 0.08)
+                      : Colors.transparent),
+            borderRadius: BorderRadius.circular(8),
+            border: Border.all(
+              color: widget.filled
+                  ? AppColors.accent
+                  : (_hovered ? AppColors.accent : AppColors.border),
+            ),
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                widget.icon,
+                size: 14,
+                color: widget.filled
+                    ? AppColors.bgPrimary
+                    : (_hovered ? AppColors.accent : AppColors.textSecondary),
+              ),
+              const SizedBox(width: 5),
+              Text(
+                widget.label,
+                style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w500,
+                  fontFamily: 'Lato',
+                  color: widget.filled
+                      ? AppColors.bgPrimary
+                      : (_hovered ? AppColors.accent : AppColors.textSecondary),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
 }
